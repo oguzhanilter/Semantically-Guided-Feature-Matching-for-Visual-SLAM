@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.0)
 project(FeatureTest)
 # c++ version
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -march=native ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
 
-set (CMAKE_CXX_STANDARD 17)
+#target_compile_features(FeatureTest PUBLIC cxx_std_17)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 ##Check C++11 or C++0x support
 #include(CheckCXXCompilerFlag)
@@ -76,7 +77,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 add_executable(main
 main.cc)
 target_link_libraries(main ${PROJECT_NAME}) 
-set_property(TARGET main PROPERTY CXX_STANDARD 11)
+set_property(TARGET main PROPERTY CXX_STANDARD 17)
 
 
 

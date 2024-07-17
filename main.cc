@@ -32,7 +32,7 @@ void ComputeThreeMaxima(std::vector<int>* histo, const int L, int &ind1, int &in
 float DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
 void LoadImages(std::vector<std::string> &vstrImageFilenames, std::vector<std::string> &vstrSemFilenames );
 unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2 );
-cv::Mat loadTxtFile(string filePath);
+cv::Mat loadTxtFile(std::string filePath);
 void setParams(std::string path);
 float rot_error(cv::Mat R_est, cv::Mat R_GT);
 float trans_error(cv::Mat t_est, cv::Mat t_GT);
@@ -451,7 +451,7 @@ unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2 )
     return dist;
 };
 
-cv::Mat loadTxtFile(string filePath) {
+cv::Mat loadTxtFile(std::string filePath) {
     std::ifstream file(filePath.c_str());
     std::string line;
 
