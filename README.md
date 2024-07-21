@@ -9,6 +9,16 @@ We introduce a new algorithm that utilizes semantic information to enhance featu
 # Content
 This repo contains the example implementation of the feature matching between two frames enhanced by semantic features. This corresponds to the 'map initialization' module of ORB-SLAM2. The rest of the pipeline could not be published due to the ownership of VSO implementation.
 
+# Build using Docker Image
+Build the docker image and run the container
+Copy the repo inside the container
+inside directory 
+mkdir build & cd build 
+cmake ..
+make -j8
+
+Alternatively you can use devcontainer in VSCode
+
 # ToDos
 - Build Instraction
 - Input Explanations

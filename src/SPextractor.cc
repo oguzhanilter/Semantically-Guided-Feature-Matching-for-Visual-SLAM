@@ -89,7 +89,7 @@ SPextractor::SPextractor(int _nfeatures, float _scaleFactor, int _nlevels,
 
     const char *net_fn =  "/cluster/home/oilter/FeatureTest/superpoint.pt";
 
-    model = torch::jit::load(net_fn);
+    *model = torch::jit::load(net_fn);
     //model = make_shared<torch::jit::load("/cluster/home/oilter/FeatureTest/superpoint.pt")>;
 
     mvScaleFactor.resize(nlevels);

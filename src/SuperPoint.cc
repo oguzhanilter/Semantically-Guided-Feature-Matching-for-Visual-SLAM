@@ -148,7 +148,7 @@ cv::Mat SPdetect(std::shared_ptr<torch::jit::script::Module> model, cv::Mat img,
     grid[0][0].slice(1, 0, 1) = 2.0 * fkpts.slice(1, 1, 2) / prob.size(1) - 1;  // x
     grid[0][0].slice(1, 1, 2) = 2.0 * fkpts.slice(1, 0, 1) / prob.size(0) - 1;  // y
 
-    desc = torch::grid_sampler(desc, grid, 0, 0);  // [1, 256, 1, n_keypoints]
+    desc = torch::grid_sampler(desc, grid, 0, 0, false);  // [1, 256, 1, n_keypoints]
     desc = desc.squeeze(0).squeeze(1);  // [256, n_keypoints]
 
     // normalize to 1
@@ -313,7 +313,7 @@ void SPDetector::computeDescriptors(const std::vector<cv::KeyPoint> &keypoints, 
     grid[0][0].slice(1, 0, 1) = 2.0 * fkpts.slice(1, 1, 2) / mProb.size(1) - 1;  // x
     grid[0][0].slice(1, 1, 2) = 2.0 * fkpts.slice(1, 0, 1) / mProb.size(0) - 1;  // y
 
-    auto desc = torch::grid_sampler(mDesc, grid, 0, 0);  // [1, 256, 1, n_keypoints]
+    auto desc = torch::grid_sampler(mDesc, grid, 0, 0, false);  // [1, 256, 1, n_keypoints]
 
     //std::cout<<"desc size: " << desc.sizes() << std::endl;
 
