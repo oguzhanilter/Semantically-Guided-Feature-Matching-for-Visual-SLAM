@@ -7,18 +7,15 @@
 #include "Frame.h"
 #include "Initializer.h"
 
+#include "ReadParams.h"
+
 #include <cmath>
 #include <vector>
+#include <cstdlib>
+
 
 #define CV_PI   3.1415926535897932384626433832795
 
-
-struct {
-
-
-
-
-}Parameters;
 
 cv::Mat K;
 std::string PATH;
@@ -54,8 +51,9 @@ const float max_dist =  1.4142135623730951;
 
 int main(int argc, char **argv){
 
-
-    PATH = argv[1];
+    std::filesystem::path parameterFilePath     = argv[1];
+    std::filesystem::path dataSetDirectoryPath  = argv[2];
+    int numberOfImages = std::atoi(argv[3]);
 
     std::cout<<"Started! The Path ID: " << PATH << std::endl;
     std::cout<<" **************************************************************" <<std::endl;
