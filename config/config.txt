@@ -1,0 +1,11 @@
+numberOfFeatures = 500
+fScaleFactor  = 1.2
+nLevels       = 1
+fIniThFAST    = 20
+fMinThFAST    = 7
+iniThFAST     = 0.015
+minThFAST     = 0.007
+intirinsic_fx =
+intirinsic_fy =
+intirinsic_cx =
+intirinsic_cy = 

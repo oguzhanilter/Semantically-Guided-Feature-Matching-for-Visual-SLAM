@@ -55,11 +55,14 @@ int main(int argc, char **argv){
     std::filesystem::path dataSetDirectoryPath  = argv[2];
     int numberOfImages = std::atoi(argv[3]);
 
-    std::cout<<"Started! The Path ID: " << PATH << std::endl;
+    std::cout<<"Started! The input directory is " << parameterFilePath << std::endl;
     std::cout<<" **************************************************************" <<std::endl;
     std::cout<<"     ***************************************************" <<std::endl;
     std::cout<<"            ***************************************" <<std::endl;
 
+    auto params = readParameters(parameterFilePath);
+
+    
 
     int nFeatures       = 500;
     float fScaleFactor  = 1.2;
@@ -430,8 +433,8 @@ float DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 
 void LoadImages(std::vector<std::string> &vstrImageFilenames, std::vector<std::string> &vstrSemFilenames )
 {
-    std::string strPrefixImg = directory + PATH + "/image_0/";
-    std::string strPrefixSem = directory + PATH + "/semantic_image_0/";
+    std::string strPrefixImg = directory + PATH + "/images/";
+    std::string strPrefixSem = directory + PATH + "/semantic_images/";
 
     vstrImageFilenames.resize(NUMBER_OF_IMAGES);
     vstrSemFilenames.resize(NUMBER_OF_IMAGES);
