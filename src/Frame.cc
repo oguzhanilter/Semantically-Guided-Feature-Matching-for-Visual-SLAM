@@ -36,7 +36,7 @@ namespace ORB_SLAM2
 
     // Monocular with Semantic
     Frame::Frame(const cv::Mat &img, const cv::Mat &sem,
-                 SPextractor *extractor, cv::Mat &K,
+                 Extractor *extractor, cv::Mat &K,
                  cv::Mat &distCoef)
         : mExtractor(extractor), mK(K.clone()),
           mDistCoef(distCoef.clone())

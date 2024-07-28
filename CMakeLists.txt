@@ -52,9 +52,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_library(${PROJECT_NAME} SHARED
 
-#src/ORBextractor.cc
+src/ORBextractor.cc
 src/SPextractor.cc
-# src/SIFTextractor.cc
+src/SIFTextractor.cc
 src/SuperPoint.cc
 src/Frame.cc
 src/Initializer.cc

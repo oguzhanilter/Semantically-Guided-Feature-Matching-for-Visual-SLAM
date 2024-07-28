@@ -30,7 +30,7 @@
 #include <math.h>  
 #include <algorithm>
 
-#include "SPextractor.h"
+#include "Extractor.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -54,7 +54,7 @@ public:
 
     // Constructor.
     Frame(const cv::Mat &img, const cv::Mat &sem, 
-          SPextractor* extractor, cv::Mat &K, 
+          Extractor* extractor, cv::Mat &K, 
           cv::Mat &distCoef);
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
@@ -79,7 +79,7 @@ public:
 public:
 
     // Feature extractor. The right is used only in the stereo case.
-    SPextractor* mExtractor;
+    Extractor* mExtractor;
 
     // Calibration matrix and OpenCV distortion parameters.
     cv::Mat mK;

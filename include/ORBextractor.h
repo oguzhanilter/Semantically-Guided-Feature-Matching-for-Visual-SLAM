@@ -1,19 +1,14 @@
 #ifndef ORBEXTRACTOR_H
 #define ORBEXTRACTOR_H
 
-#include "ExractorNode.h"
+#include "Extractor.h"
 
 namespace ORB_SLAM2
 {
 
-    class ORBextractor
+    class ORBextractor : public Extractor
     {
     public:
-        enum
-        {
-            HARRIS_SCORE = 0,
-            FAST_SCORE = 1
-        };
 
         ORBextractor(int nfeatures, float scaleFactor, int nlevels,
                      int iniThFAST, int minThFAST);
@@ -25,39 +20,39 @@ namespace ORB_SLAM2
         // Mask is ignored in the current implementation.
         void operator()(cv::InputArray image, cv::InputArray mask,
                         std::vector<cv::KeyPoint> &keypoints,
-                        cv::OutputArray descriptors);
+                        cv::OutputArray descriptors) override;
 
-        int inline GetLevels()
+        int inline GetLevels() override
         {
             return nlevels;
         }
 
-        float inline GetScaleFactor()
+        float inline GetScaleFactor() override
         {
             return scaleFactor;
         }
 
-        std::vector<float> inline GetScaleFactors()
+        std::vector<float> inline GetScaleFactors() override
         {
             return mvScaleFactor;
         }
 
-        std::vector<float> inline GetInverseScaleFactors()
+        std::vector<float> inline GetInverseScaleFactors() override
         {
             return mvInvScaleFactor;
         }
 
-        std::vector<float> inline GetScaleSigmaSquares()
+        std::vector<float> inline GetScaleSigmaSquares() override
         {
             return mvLevelSigma2;
         }
 
-        std::vector<float> inline GetInverseScaleSigmaSquares()
+        std::vector<float> inline GetInverseScaleSigmaSquares() override
         {
             return mvInvLevelSigma2;
         }
 
-        std::vector<cv::Mat> mvImagePyramid;
+
 
     protected:
         void ComputePyramid(cv::Mat image);
@@ -73,6 +68,8 @@ namespace ORB_SLAM2
         int nlevels;
         int iniThFAST;
         int minThFAST;
+
+        std::vector<cv::Mat> mvImagePyramid;
 
         std::vector<int> mnFeaturesPerLevel;
 

@@ -15,6 +15,12 @@ std::unordered_map<std::string, double> readParameters(const std::filesystem::pa
     }
 
     while (std::getline(file, line)) {
+
+        // Skip lines that start with '#'
+        if (!line.empty() && line[0] == '#') {
+            continue;
+        }
+
         std::istringstream iss(line);
         std::string name;
         char equalSign;
@@ -26,7 +32,8 @@ std::unordered_map<std::string, double> readParameters(const std::filesystem::pa
             } else {
                 std::cout << "Invalid format in line: " << line << std::endl;
             }
-        } else {
+        } 
+        else {
             std::cout << "Invalid line: " << line << std::endl;
         }
     }

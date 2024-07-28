@@ -1,3 +1,4 @@
+featureExtractorType = 0
 numberOfFeatures = 500
 fScaleFactor  = 1.2
 nLevels       = 1

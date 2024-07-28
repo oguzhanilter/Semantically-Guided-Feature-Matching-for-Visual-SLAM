@@ -1,0 +1,63 @@
+void setParams(std::string path){
+
+    if (path == "00" || path == "01" || path == "02"  ){
+
+        cv::Mat dummy = cv::Mat::eye(3,3,CV_32F);
+        dummy.at<float>(0,0) = 718.856;
+        dummy.at<float>(1,1) = 718.856;
+        dummy.at<float>(0,2) = 607.1928;
+        dummy.at<float>(1,2) = 185.2157;
+        dummy.copyTo(K);
+
+        if(path == "00"){
+            NUMBER_OF_IMAGES = 4541;
+        }
+        else if(path == "02"){
+            NUMBER_OF_IMAGES = 4661;
+        }
+
+    }
+    else if (path == "03" ){
+
+        cv::Mat dummy = cv::Mat::eye(3,3,CV_32F);
+        dummy.at<float>(0,0) = 721.5377;
+        dummy.at<float>(1,1) = 721.5377;
+        dummy.at<float>(0,2) = 609.5593;
+        dummy.at<float>(1,2) = 172.854;
+        dummy.copyTo(K);
+
+        NUMBER_OF_IMAGES = 801;
+
+    }
+    else if (path == "04" || path == "05" || path == "06" || path == "07" || path == "08" || path == "09" || path == "10" ){
+        
+        cv::Mat dummy = cv::Mat::eye(3,3,CV_32F);
+        dummy.at<float>(0,0) = 707.0912;
+        dummy.at<float>(1,1) = 707.0912;
+        dummy.at<float>(0,2) = 601.8873;
+        dummy.at<float>(1,2) = 183.1104;
+        dummy.copyTo(K);
+
+        if(path == "04"){
+            NUMBER_OF_IMAGES = 271; 
+        }
+        else if(path == "05"){
+            NUMBER_OF_IMAGES = 2761; 
+        }
+        else if(path == "06"){
+            NUMBER_OF_IMAGES = 1101; 
+        }
+        else if(path == "07"){
+            NUMBER_OF_IMAGES = 1101; 
+        }
+        else if(path == "08"){
+            NUMBER_OF_IMAGES = 4071; 
+        }
+        else if(path == "09"){
+            NUMBER_OF_IMAGES = 1591; 
+        }
+        else if(path == "10"){
+            NUMBER_OF_IMAGES = 1201; 
+        }
+
+    }
