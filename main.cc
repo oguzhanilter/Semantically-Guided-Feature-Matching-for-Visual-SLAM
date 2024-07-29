@@ -20,10 +20,11 @@ cv::Mat K;
 std::string PATH;
 int NUMBER_OF_IMAGES;
 
-int NUMBER_OF_REFERENCES = 250;
-std::vector<int> INTERVALS{5, 10, 15};
-cv::Mat DISTCONF = cv::Mat::zeros(4, 1, CV_32F);
-std::string directory = "/cluster/scratch/oilter/KITTI/sequences/";
+// 
+const int NUMBER_OF_REFERENCES = 250;
+const std::vector<int> INTERVALS{5, 10, 15};
+cv::Mat DISTORTION_COEFFICIENTS = cv::Mat::zeros(4, 1, CV_32F);
+
 const float TH_HIGH = 0.70;
 const float TH_LOW = 0.30;
 const int HISTO_LENGTH = 30;
@@ -34,7 +35,6 @@ void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &in
 float DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
 unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2);
 cv::Mat loadTxtFile(const std::filesystem::path &filePath);
-void setParams(std::string path);
 float rot_error(cv::Mat R_est, cv::Mat R_GT);
 float trans_error(cv::Mat t_est, cv::Mat t_GT);
 void calculateGT(cv::Mat pos_row1, cv::Mat pos_row2, cv::Mat &R_GT, cv::Mat &t_GT);
@@ -42,7 +42,7 @@ float calculateRMS(std::vector<float> &v);
 std::vector<int> linspace(int start_in, int end_in, int num_in);
 std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath);
 
-const float max_dist = 1.4142135623730951;
+double MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
 
 int main(int argc, char **argv)
 {
@@ -56,6 +56,11 @@ int main(int argc, char **argv)
     std::cout << "            ***************************************" << std::endl;
 
     auto params = readParameters(parameterFilePath);
+
+
+
+
+
 
     int nFeatures = 500;
     float fScaleFactor = 1.2;
@@ -87,28 +92,31 @@ int main(int argc, char **argv)
     }
 
     // TODO read params
-    setParams(PATH);
 
     cv::Mat GTPoses = loadTxtFile(dataSetDirectoryPath / "groundtruth.txt");
 
     std::vector<int> indices = linspace(0, NUMBER_OF_IMAGES - INTERVALS.back() - 2, NUMBER_OF_REFERENCES);
 
+    // Set feature extractor 
     ORB_SLAM2::Extractor *extractor_ptr;
 
     if (featureExtractorType == 0)
     {
         ORB_SLAM2::ORBextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
+        MAX_DISTANCE_BETWEEN_DESCRIPTORS = 256;
     }
     else if (featureExtractorType == 1)
     {
         ORB_SLAM2::SPextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
+        MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
     }
     else if (featureExtractorType == 2)
     {
         ORB_SLAM2::SIFTextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
+        MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
     }
     else
     {
@@ -123,13 +131,9 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < NUMBER_OF_REFERENCES; i++)
     {
-
-        // std::cout<<"i: "<< i <<std::endl;
-        // std::cout<<"indices[i]: "<< indices[i] <<std::endl;
-
+        // To track the process 
         if (i % 10 == 0)
         {
-
             std::cout << "<" << std::flush;
         }
 
@@ -138,16 +142,11 @@ int main(int argc, char **argv)
         cv::Mat im1 = cv::imread(vstrImageFilenames[idx], 0);
         cv::Mat im1_sem = cv::imread(vstrSemFilenames[idx], 0);
 
-        // std::cout<<"After read image1" <<std::endl;
-
         cv::Mat P1_row = GTPoses.row(idx);
-        ORB_SLAM2::Frame frame1(im1, im1_sem, extractor_ptr, K, DISTCONF);
+        ORB_SLAM2::Frame frame1(im1, im1_sem, extractor_ptr, K, DISTORTION_COEFFICIENTS);
 
-        // std::cout<<"After frame1" <<std::endl;
-
+        // ORB-SLAM2 initilization module
         ORB_SLAM2::Initializer *mpInitializer = new ORB_SLAM2::Initializer(frame1, 1.0, 200);
-
-        // std::cout<<"After initializer" <<std::endl;
 
         for (int j = 0; j < INTERVALS.size(); j++)
         {
@@ -156,28 +155,20 @@ int main(int argc, char **argv)
             cv::Mat GT_R, GT_t;
             cv::Mat Sem_R, sem_t;
             cv::Mat Normal_R, normal_t;
+
+            // These variables are not used. They are defined just to run the initilization functions.
             std::vector<cv::Point3f> dummy1, dummy2;
             std::vector<bool> dumdum1, dumdum2;
 
-            // std::cout<<"j: "<< j <<std::endl;
-            // std::cout<<"INTERVALS[j]: "<< INTERVALS[j] <<std::endl;
-
             cv::Mat im2 = cv::imread(vstrImageFilenames[idx + INTERVALS[j]], 0);
             cv::Mat im2_sem = cv::imread(vstrSemFilenames[idx + INTERVALS[j]], 0);
-            // std::cout<<"After read image2" <<std::endl;
             cv::Mat P2_row = GTPoses.row(idx + INTERVALS[j]);
-            // std::cout<<"After GTPoses" <<std::endl;
 
-            ORB_SLAM2::Frame frame2(im2, im2_sem, extractor_ptr, K, DISTCONF);
-            // std::cout<<"After frame2" <<std::endl;
+            ORB_SLAM2::Frame frame2(im2, im2_sem, extractor_ptr, K, DISTORTION_COEFFICIENTS);
 
             calculateGT(P1_row, P2_row, GT_R, GT_t);
-            // std::cout<<"After calculateGT" <<std::endl;
 
             int match_num_sem = matcher(frame1, frame2, matches_semantic, true);
-            // std::cout<<"After matcher" <<std::endl;
-
-            ////std::cout<<"match_num_sem: " << match_num_sem << std::endl;
 
             if (match_num_sem > 10)
             {
@@ -305,7 +296,7 @@ int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatc
             {
 
                 float dist_semantic = static_cast<float>(compare_semantics(vbPrevMatched_semanticRegions[i1], F2.mvKeysSemanticRegions[i2]));
-                dist = (1 - 0.1) * dist + 0.1 * max_dist / float(vbPrevMatched_semanticRegions[i1].size[1]) * dist_semantic;
+                dist = (1 - 0.1) * dist + 0.1 * MAX_DISTANCE_BETWEEN_DESCRIPTORS / float(vbPrevMatched_semanticRegions[i1].size[1]) * dist_semantic;
             }
 
             if (vMatchedDistance[i2] <= dist)
@@ -426,6 +417,21 @@ float DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
     float dist = (float)cv::norm(a, b, cv::NORM_L2);
     return dist;
+
+    /*
+    const int *pa = a.ptr<int32_t>();
+    const int *pb = b.ptr<int32_t>();
+
+    int dist=0;
+
+    for(int i=0; i<8; i++, pa++, pb++)
+    {
+        unsigned  int v = *pa ^ *pb;
+        v = v - ((v >> 1) & 0x55555555);
+        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+        dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+    }
+    */
 };
 
 std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath)
@@ -510,81 +516,6 @@ cv::Mat loadTxtFile(const std::filesystem::path &filePath)
     }
 
     return mat;
-};
-
-void setParams(std::string path)
-{
-
-    if (path == "00" || path == "01" || path == "02")
-    {
-
-        cv::Mat dummy = cv::Mat::eye(3, 3, CV_32F);
-        dummy.at<float>(0, 0) = 718.856;
-        dummy.at<float>(1, 1) = 718.856;
-        dummy.at<float>(0, 2) = 607.1928;
-        dummy.at<float>(1, 2) = 185.2157;
-        dummy.copyTo(K);
-
-        if (path == "00")
-        {
-            NUMBER_OF_IMAGES = 4541;
-        }
-        else if (path == "02")
-        {
-            NUMBER_OF_IMAGES = 4661;
-        }
-    }
-    else if (path == "03")
-    {
-
-        cv::Mat dummy = cv::Mat::eye(3, 3, CV_32F);
-        dummy.at<float>(0, 0) = 721.5377;
-        dummy.at<float>(1, 1) = 721.5377;
-        dummy.at<float>(0, 2) = 609.5593;
-        dummy.at<float>(1, 2) = 172.854;
-        dummy.copyTo(K);
-
-        NUMBER_OF_IMAGES = 801;
-    }
-    else if (path == "04" || path == "05" || path == "06" || path == "07" || path == "08" || path == "09" || path == "10")
-    {
-
-        cv::Mat dummy = cv::Mat::eye(3, 3, CV_32F);
-        dummy.at<float>(0, 0) = 707.0912;
-        dummy.at<float>(1, 1) = 707.0912;
-        dummy.at<float>(0, 2) = 601.8873;
-        dummy.at<float>(1, 2) = 183.1104;
-        dummy.copyTo(K);
-
-        if (path == "04")
-        {
-            NUMBER_OF_IMAGES = 271;
-        }
-        else if (path == "05")
-        {
-            NUMBER_OF_IMAGES = 2761;
-        }
-        else if (path == "06")
-        {
-            NUMBER_OF_IMAGES = 1101;
-        }
-        else if (path == "07")
-        {
-            NUMBER_OF_IMAGES = 1101;
-        }
-        else if (path == "08")
-        {
-            NUMBER_OF_IMAGES = 4071;
-        }
-        else if (path == "09")
-        {
-            NUMBER_OF_IMAGES = 1591;
-        }
-        else if (path == "10")
-        {
-            NUMBER_OF_IMAGES = 1201;
-        }
-    }
 };
 
 float rot_error(cv::Mat R_est, cv::Mat R_GT)
