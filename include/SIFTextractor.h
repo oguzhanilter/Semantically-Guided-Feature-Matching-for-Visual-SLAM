@@ -3,9 +3,6 @@
 
 #include "Extractor.h"
 
-using namespace cv;
-using namespace std;
-
 namespace ORB_SLAM2
 {
 
@@ -83,7 +80,7 @@ namespace ORB_SLAM2
         std::vector<float> mvLevelSigma2;
         std::vector<float> mvInvLevelSigma2;
 
-        void computeDescriptors(const Mat &image, vector<KeyPoint> &keypoints, Mat &descriptors);
+        void computeDescriptors(const cv::Mat &image, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors);
 
     };
 

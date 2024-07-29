@@ -1,3 +1,4 @@
+# 0: ORB, 1: SP, 2: SIFT
 featureExtractorType = 0
 numberOfFeatures = 500
 fScaleFactor  = 1.2

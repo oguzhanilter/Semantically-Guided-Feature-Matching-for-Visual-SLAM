@@ -27,12 +27,12 @@ SPextractor::SPextractor(int _nfeatures, float _scaleFactor, int _nlevels,
 {
 
     //model = make_shared<SuperPoint>();
-    //torch::load(model, "/cluster/home/oilter/FeatureTest/superpoint.pt");
+    //torch::load(model, "path");
 
-    const char *net_fn =  "/cluster/home/oilter/FeatureTest/superpoint.pt";
+    const char *net_fn =  "weights/superpoint.pt";
 
     *model = torch::jit::load(net_fn);
-    //model = make_shared<torch::jit::load("/cluster/home/oilter/FeatureTest/superpoint.pt")>;
+    //model = make_shared<torch::jit::load("path")>;
 
     mvScaleFactor.resize(nlevels);
     mvLevelSigma2.resize(nlevels);
