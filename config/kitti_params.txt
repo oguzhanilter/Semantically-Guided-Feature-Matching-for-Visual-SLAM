@@ -61,3 +61,7 @@ void setParams(std::string path){
         }
 
     }
+
+        Frame.cc at line 65
+        // Depending on the semantic segmenter this needs to be changed 
+        ushort numberOfClasses = 19;

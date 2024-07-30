@@ -1,75 +1,88 @@
-#include <iostream>
-#include <algorithm>
-#include <fstream>
-#include"ORBextractor.h"
-#include"SIFTextractor.h"
-#include "SPextractor.h"
 #include "Frame.h"
-#include "Initializer.h"
 #include "Extractor.h"
+#include "Initializer.h"
+#include "SPextractor.h"
+#include "ORBextractor.h"
+#include "SIFTextractor.h"
 
 #include "ReadParams.h"
 
 #include <cmath>
 #include <vector>
+#include <fstream>
 #include <cstdlib>
+#include <iostream>
+#include <algorithm>
 
 #define CV_PI 3.1415926535897932384626433832795
 
-cv::Mat K;
-std::string PATH;
-int NUMBER_OF_IMAGES;
+// Function declearations ---------------------- 
+int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatches12, bool withSemantic);
+unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2);
 
-// 
+cv::Mat loadTxtFile(const std::filesystem::path &filePath);
+
+float rot_error(cv::Mat R_est, cv::Mat R_GT);
+float trans_error(cv::Mat t_est, cv::Mat t_GT);
+float calculateRMS(std::vector<float> &v);
+float DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
+
+void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &ind2, int &ind3);
+void calculateGT(cv::Mat pos_row1, cv::Mat pos_row2, cv::Mat &R_GT, cv::Mat &t_GT);
+
+std::vector<int> linspace(int start_in, int end_in, int num_in);
+std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath);
+// --------------------------------------------
+
+
+
+// ----- Global variables ---------------------------------------------
+// Parameters set inside main
+double MAX_DISTANCE_BETWEEN_DESCRIPTORS;
+int FEATURE_EXTRACTOR_TYPE; // 0: ORB, 1: SP, 2: SIFT
+
+// Static Parameters
+// TODO add explanations
 const int NUMBER_OF_REFERENCES = 250;
 const std::vector<int> INTERVALS{5, 10, 15};
 cv::Mat DISTORTION_COEFFICIENTS = cv::Mat::zeros(4, 1, CV_32F);
 
-const float TH_HIGH = 0.70;
+// Feature matching related params, taken from ORB-SLAM2
 const float TH_LOW = 0.30;
 const int HISTO_LENGTH = 30;
 const float mfNNratio = 0.7;
 
-int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatches12, bool withSemantic);
-void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &ind2, int &ind3);
-float DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
-unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2);
-cv::Mat loadTxtFile(const std::filesystem::path &filePath);
-float rot_error(cv::Mat R_est, cv::Mat R_GT);
-float trans_error(cv::Mat t_est, cv::Mat t_GT);
-void calculateGT(cv::Mat pos_row1, cv::Mat pos_row2, cv::Mat &R_GT, cv::Mat &t_GT);
-float calculateRMS(std::vector<float> &v);
-std::vector<int> linspace(int start_in, int end_in, int num_in);
-std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath);
+// ---------------------------------------------------------------------
 
-double MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
+
 
 int main(int argc, char **argv)
 {
-
     std::filesystem::path parameterFilePath = argv[1];
     std::filesystem::path dataSetDirectoryPath = argv[2];
 
-    std::cout << "Started! The input directory is " << parameterFilePath << std::endl;
+    std::cout << "Started! The input directory is " << dataSetDirectoryPath << std::endl;
     std::cout << " **************************************************************" << std::endl;
     std::cout << "     ***************************************************" << std::endl;
     std::cout << "            ***************************************" << std::endl;
 
     auto params = readParameters(parameterFilePath);
 
+    // Parameter initilization ----------
+    int numberOfInputImages; // will be initilized according to the number of input images
 
+    int nFeatures = static_cast<int>( params["numberOfFeatures"] );
+    float fScaleFactor = static_cast<float>( params["fScaleFactor"] );
+    int nLevels = static_cast<float>( params["nLevels"] );
+    float iniThFAST = static_cast<float>( params["iniThFAST"] );
+    float minThFAST = static_cast<float>( params["minThFAST"] );
 
-
-
-
-    int nFeatures = 500;
-    float fScaleFactor = 1.2;
-    int nLevels = 1;
-    int fIniThFAST = 20;
-    int fMinThFAST = 7;
-    float iniThFAST = 0.015;
-    float minThFAST = 0.007;
-    int featureExtractorType = 0; // 0: ORB, 1: SP, 2: SIFT
+    cv::Mat K = cv::Mat::eye(3,3,CV_32F);
+    K.at<float>(0,0) = static_cast<float>( params["intirinsic_fx"] );
+    K.at<float>(1,1) = static_cast<float>( params["intirinsic_fy"] );
+    K.at<float>(0,2) = static_cast<float>( params["intirinsic_cx"] );
+    K.at<float>(1,2) = static_cast<float>( params["intirinsic_cy"] );
+    // Parameter initilization done ------
 
     std::vector<float> rot_error_normal;
     std::vector<float> trans_error_normal;
@@ -84,35 +97,33 @@ int main(int argc, char **argv)
 
     if (vstrImageFilenames.size() == vstrSemFilenames.size())
     {
-        NUMBER_OF_IMAGES = vstrImageFilenames.size();
+        numberOfInputImages = vstrImageFilenames.size();
     }
     else
     {
-        throw "RGB image count and semantic images counts are not equal. Exiting ...";
+        throw "RGB image count and semantic images count are not equal. Exiting ...";
     }
 
-    // TODO read params
+    const cv::Mat GTPoses = loadTxtFile(dataSetDirectoryPath / "groundtruth.txt");
 
-    cv::Mat GTPoses = loadTxtFile(dataSetDirectoryPath / "groundtruth.txt");
+    const std::vector<int> indices = linspace(0, numberOfInputImages - INTERVALS.back() - 2, NUMBER_OF_REFERENCES);
 
-    std::vector<int> indices = linspace(0, NUMBER_OF_IMAGES - INTERVALS.back() - 2, NUMBER_OF_REFERENCES);
-
-    // Set feature extractor 
+    // Set feature extractor
     ORB_SLAM2::Extractor *extractor_ptr;
 
-    if (featureExtractorType == 0)
+    if (FEATURE_EXTRACTOR_TYPE == 0)
     {
         ORB_SLAM2::ORBextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
         MAX_DISTANCE_BETWEEN_DESCRIPTORS = 256;
     }
-    else if (featureExtractorType == 1)
+    else if (FEATURE_EXTRACTOR_TYPE == 1)
     {
         ORB_SLAM2::SPextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
         MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
     }
-    else if (featureExtractorType == 2)
+    else if (FEATURE_EXTRACTOR_TYPE == 2)
     {
         ORB_SLAM2::SIFTextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
@@ -131,7 +142,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < NUMBER_OF_REFERENCES; i++)
     {
-        // To track the process 
+        // To track the process
         if (i % 10 == 0)
         {
             std::cout << "<" << std::flush;
@@ -175,14 +186,8 @@ int main(int argc, char **argv)
 
                 if (mpInitializer->Initialize(frame2, matches_semantic, Sem_R, sem_t, dummy1, dumdum1))
                 {
-
-                    // std::cout<< " 11111111111111111111111111 " <<std::endl;
-
                     rot_error_sem.push_back(rot_error(Sem_R, GT_R));
                     trans_error_sem.push_back(trans_error(sem_t, GT_t));
-
-                    // std::cout<<"Trans error: "<< trans_error(sem_t, GT_t) <<std::endl;
-                    // std::cout<< " 222222222222222222222222222222222 " <<std::endl;
 
                     success_semantic++;
                 }
@@ -197,25 +202,18 @@ int main(int argc, char **argv)
 
                 if (mpInitializer->Initialize(frame2, matches_normal, Normal_R, normal_t, dummy2, dumdum2))
                 {
-
                     rot_error_normal.push_back(rot_error(Normal_R, GT_R));
                     trans_error_normal.push_back(trans_error(normal_t, GT_t));
                     success_normal++;
                 }
-
-                // std::cout<<"After Initialize normal" <<std::endl;
             }
         }
     }
-
-    // std::cout<<"Before calculateRMS" <<std::endl;
 
     float rmse_rot_sem = calculateRMS(rot_error_sem);
     float rmse_trans_sem = calculateRMS(trans_error_sem);
     float rmse_rot_normal = calculateRMS(rot_error_normal);
     float rmse_trans_normal = calculateRMS(trans_error_normal);
-
-    // std::cout<<"After calculateRMS" <<std::endl;
 
     std::cout << std::endl;
     std::cout << "rmse_rot_sem: " << rmse_rot_sem << std::endl;
@@ -226,7 +224,8 @@ int main(int argc, char **argv)
     std::cout << "Sem success: " << success_semantic << std::endl;
     std::cout << "Normal success: " << success_normal << std::endl;
 
-    std::cout << "Ended! The Path ID: " << PATH << std::endl;
+    std::cout << "Ended! The tested directory is " << dataSetDirectoryPath << std::endl;
+    std::cout << "The parameter file is " << parameterFilePath << std::endl;
     std::cout << "            ************************************       " << std::endl;
     std::cout << "     ***************************************************    " << std::endl;
     std::cout << " **************************************************************     " << std::endl;
@@ -415,23 +414,29 @@ void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &in
 
 float DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
-    float dist = (float)cv::norm(a, b, cv::NORM_L2);
-    return dist;
 
-    /*
-    const int *pa = a.ptr<int32_t>();
-    const int *pb = b.ptr<int32_t>();
-
-    int dist=0;
-
-    for(int i=0; i<8; i++, pa++, pb++)
+    if (FEATURE_EXTRACTOR_TYPE == 0)
     {
-        unsigned  int v = *pa ^ *pb;
-        v = v - ((v >> 1) & 0x55555555);
-        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-        dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+        float dist = (float)cv::norm(a, b, cv::NORM_L2);
+        return dist;
     }
-    */
+    else if (FEATURE_EXTRACTOR_TYPE == 1)
+    {
+        const int *pa = a.ptr<int32_t>();
+        const int *pb = b.ptr<int32_t>();
+
+        int dist = 0;
+
+        for (int i = 0; i < 8; i++, pa++, pb++)
+        {
+            unsigned int v = *pa ^ *pb;
+            v = v - ((v >> 1) & 0x55555555);
+            v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+            dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+        }
+
+        return dist;
+    }
 };
 
 std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath)

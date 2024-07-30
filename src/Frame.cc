@@ -1,4 +1,3 @@
-
 #include "Frame.h"
 #include "SPextractor.h"
 #include <thread>
@@ -62,8 +61,7 @@ namespace ORB_SLAM2
             i++;
         } while (N < 2 && i < 10);
 
-        // std::cout<<"N: " << N << std::endl;
-
+        // Depending on the semantic segmenter this needs to be changed 
         ushort numberOfClasses = 19;
 
         mvKeysClasses.reserve(N);
