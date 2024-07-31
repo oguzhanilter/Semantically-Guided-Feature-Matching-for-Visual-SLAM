@@ -6,6 +6,8 @@
 
 namespace ORB_SLAM2
 {
+    // Depending on the semantic segmention this needs to be changed
+    ushort NUMBER_OF_SEMANTIC_CLASSES = 19;
 
     bool Frame::mbInitialComputations = true;
     float Frame::cx, Frame::cy, Frame::fx, Frame::fy, Frame::invfx, Frame::invfy;
@@ -61,9 +63,6 @@ namespace ORB_SLAM2
             i++;
         } while (N < 2 && i < 10);
 
-        // Depending on the semantic segmenter this needs to be changed 
-        ushort numberOfClasses = 19;
-
         mvKeysClasses.reserve(N);
         mvKeysSemanticRegions.reserve(N);
 
@@ -80,7 +79,7 @@ namespace ORB_SLAM2
             mvKeysClasses.push_back(class_id);
 
             std::vector<uchar> patch;
-            cv::Mat regionIDHist = cv::Mat::zeros(1, numberOfClasses, CV_32F);
+            cv::Mat regionIDHist = cv::Mat::zeros(1, NUMBER_OF_SEMANTIC_CLASSES, CV_32F);
 
             circle = cv::Mat::zeros(kp.size, kp.size, CV_8U);
             cv::circle(circle, cv::Point(int(kp.size / 2), int(kp.size / 2)), static_cast<int>(kp.size / 2), 1, cv::FILLED);

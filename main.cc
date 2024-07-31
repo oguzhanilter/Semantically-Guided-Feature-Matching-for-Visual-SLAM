@@ -58,18 +58,19 @@ const float mfNNratio = 0.7;
 
 int main(int argc, char **argv)
 {
-    std::filesystem::path parameterFilePath = argv[1];
-    std::filesystem::path dataSetDirectoryPath = argv[2];
+    std::filesystem::path dataSetDirectoryPath = argv[1];
 
     std::cout << "Started! The input directory is " << dataSetDirectoryPath << std::endl;
     std::cout << " **************************************************************" << std::endl;
     std::cout << "     ***************************************************" << std::endl;
     std::cout << "            ***************************************" << std::endl;
 
-    auto params = readParameters(parameterFilePath);
+    auto params = readParameters(dataSetDirectoryPath / "config.txt");
 
     // Parameter initilization ----------
     int numberOfInputImages; // will be initilized according to the number of input images
+
+    FEATURE_EXTRACTOR_TYPE = static_cast<int>( params["featureExtractorType"] );
 
     int nFeatures = static_cast<int>( params["numberOfFeatures"] );
     float fScaleFactor = static_cast<float>( params["fScaleFactor"] );
@@ -102,6 +103,11 @@ int main(int argc, char **argv)
     else
     {
         throw "RGB image count and semantic images count are not equal. Exiting ...";
+    }
+
+    if (numberOfInputImages < NUMBER_OF_REFERENCES - INTERVALS.back() )
+    {
+        throw "Number of images less than the Number of references - largest interval. Please change number of references. Exiting ...";
     }
 
     const cv::Mat GTPoses = loadTxtFile(dataSetDirectoryPath / "groundtruth.txt");
@@ -225,7 +231,6 @@ int main(int argc, char **argv)
     std::cout << "Normal success: " << success_normal << std::endl;
 
     std::cout << "Ended! The tested directory is " << dataSetDirectoryPath << std::endl;
-    std::cout << "The parameter file is " << parameterFilePath << std::endl;
     std::cout << "            ************************************       " << std::endl;
     std::cout << "     ***************************************************    " << std::endl;
     std::cout << " **************************************************************     " << std::endl;
