@@ -22,6 +22,4 @@ Alternatively you can use devcontainer in VSCode
 # ToDos
 - Build Instraction
 - Input Explanations
-- Refactoring
-    - Connection to the paper
 - Add paper 

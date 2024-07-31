@@ -79,6 +79,8 @@ namespace ORB_SLAM2
             mvKeysClasses.push_back(class_id);
 
             std::vector<uchar> patch;
+
+            // TODO add explanations
             cv::Mat regionIDHist = cv::Mat::zeros(1, NUMBER_OF_SEMANTIC_CLASSES, CV_32F);
 
             circle = cv::Mat::zeros(kp.size, kp.size, CV_8U);

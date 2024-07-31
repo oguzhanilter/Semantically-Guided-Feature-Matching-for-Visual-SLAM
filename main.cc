@@ -298,7 +298,7 @@ int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatc
 
             if (withSemantic)
             {
-
+                // TODO: Add explanation
                 float dist_semantic = static_cast<float>(compare_semantics(vbPrevMatched_semanticRegions[i1], F2.mvKeysSemanticRegions[i2]));
                 dist = (1 - 0.1) * dist + 0.1 * MAX_DISTANCE_BETWEEN_DESCRIPTORS / float(vbPrevMatched_semanticRegions[i1].size[1]) * dist_semantic;
             }
