@@ -31,7 +31,7 @@ void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &in
 void calculateGT(cv::Mat pos_row1, cv::Mat pos_row2, cv::Mat &R_GT, cv::Mat &t_GT);
 
 std::vector<int> linspace(int start_in, int end_in, int num_in);
-std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath);
+std::vector<std::filesystem::path> getImageFileNames(const std::filesystem::path &directoryPath);
 // --------------------------------------------
 
 
@@ -85,13 +85,17 @@ int main(int argc, char **argv)
     K.at<float>(1,2) = static_cast<float>( params["intirinsic_cy"] );
     // Parameter initilization done ------
 
+    std::cout << "Parameters are read from the file " << K << std::endl;
+
+    std::cout << "Parameters are read from the file " << dataSetDirectoryPath / "config.txt" << std::endl;
+
     std::vector<float> rot_error_normal;
     std::vector<float> trans_error_normal;
     std::vector<float> rot_error_sem;
     std::vector<float> trans_error_sem;
 
-    std::vector<std::string> vstrImageFilenames;
-    std::vector<std::string> vstrSemFilenames;
+    std::vector<std::filesystem::path> vstrImageFilenames;
+    std::vector<std::filesystem::path> vstrSemFilenames;
 
     vstrImageFilenames = getImageFileNames(dataSetDirectoryPath / "images");
     vstrSemFilenames = getImageFileNames(dataSetDirectoryPath / "semantic_images");
@@ -109,6 +113,8 @@ int main(int argc, char **argv)
     {
         throw "Number of images less than the Number of references - largest interval. Please change number of references. Exiting ...";
     }
+
+    std::cout << "Data directory " << dataSetDirectoryPath << " has been set." << std::endl;
 
     const cv::Mat GTPoses = loadTxtFile(dataSetDirectoryPath / "groundtruth.txt");
 
@@ -140,11 +146,15 @@ int main(int argc, char **argv)
         std::invalid_argument("Unknown feature extractor type. Exiting ...");
     }
 
+    std::cout << "Feature extractor "<< FEATURE_EXTRACTOR_TYPE << " has been set." << std::endl;
+
     cv::Mat mDescriptors;
     std::vector<cv::KeyPoint> mvKeys;
 
     int success_semantic = 0;
     int success_normal = 0;
+
+    std::cout << "Testing loop is starting ..." << std::endl;
 
     for (int i = 0; i < NUMBER_OF_REFERENCES; i++)
     {
@@ -154,16 +164,28 @@ int main(int argc, char **argv)
             std::cout << "<" << std::flush;
         }
 
+        std::cout << "before indices ..." << std::endl;
+
         int idx = indices[i];
 
+std::cout << "before imread ..." << std::endl;
         cv::Mat im1 = cv::imread(vstrImageFilenames[idx], 0);
         cv::Mat im1_sem = cv::imread(vstrSemFilenames[idx], 0);
 
+
+
+        std::cout << "file name ..."<< im1.empty() << im1_sem.empty() << std::endl;
+
+        std::cout << "before gtposes ..." << std::endl;
         cv::Mat P1_row = GTPoses.row(idx);
+        std::cout << "before frame ..." << std::endl;
         ORB_SLAM2::Frame frame1(im1, im1_sem, extractor_ptr, K, DISTORTION_COEFFICIENTS);
 
         // ORB-SLAM2 initilization module
+        std::cout << "before init ..." << std::endl;
         ORB_SLAM2::Initializer *mpInitializer = new ORB_SLAM2::Initializer(frame1, 1.0, 200);
+
+        std::cout << "Before intervals ..." << std::endl;
 
         for (int j = 0; j < INTERVALS.size(); j++)
         {
@@ -186,6 +208,8 @@ int main(int argc, char **argv)
             calculateGT(P1_row, P2_row, GT_R, GT_t);
 
             int match_num_sem = matcher(frame1, frame2, matches_semantic, true);
+
+            std::cout << "before match num sem  ..." << std::endl;
 
             if (match_num_sem > 10)
             {
@@ -444,9 +468,9 @@ float DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
     }
 };
 
-std::vector<std::string> getImageFileNames(const std::filesystem::path &directoryPath)
+std::vector<std::filesystem::path> getImageFileNames(const std::filesystem::path &directoryPath)
 {
-    std::vector<std::string> imageFileNames;
+    std::vector<std::filesystem::path> imageFileNames;
 
     // Supported image extensions
     const std::vector<std::string> imageExtensions = {".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".webp"};
@@ -466,7 +490,7 @@ std::vector<std::string> getImageFileNames(const std::filesystem::path &director
             std::string extension = entry.path().extension().string();
             if (std::find(imageExtensions.begin(), imageExtensions.end(), extension) != imageExtensions.end())
             {
-                imageFileNames.push_back(entry.path().filename().string());
+                imageFileNames.push_back(directoryPath / entry.path().filename().string());
             }
         }
     }

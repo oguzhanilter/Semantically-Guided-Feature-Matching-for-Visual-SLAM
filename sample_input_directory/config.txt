@@ -7,7 +7,7 @@ nLevels       = 1
 iniThFAST     = 20  
 # 7 for ORB or FAST, 0.007 for SuperPoint
 minThFAST     = 7
-intirinsic_fx = 
-intirinsic_fy =
-intirinsic_cx =
-intirinsic_cy = 
+intirinsic_fx = 718.856
+intirinsic_fy = 718.856
+intirinsic_cx = 607.1928
+intirinsic_cy = 185.2157
