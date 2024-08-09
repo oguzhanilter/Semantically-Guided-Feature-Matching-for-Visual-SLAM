@@ -125,8 +125,8 @@ int main(int argc, char **argv)
 
     if (FEATURE_EXTRACTOR_TYPE == 0)
     {
-        ORB_SLAM2::ORBextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
-        extractor_ptr = &extractor;
+        
+        extractor_ptr = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         MAX_DISTANCE_BETWEEN_DESCRIPTORS = 256;
     }
     else if (FEATURE_EXTRACTOR_TYPE == 1)
@@ -173,8 +173,9 @@ std::cout << "before imread ..." << std::endl;
         cv::Mat im1_sem = cv::imread(vstrSemFilenames[idx], 0);
 
 
+        std::cout << "image: "<< im1.cols << " "<< im1.rows << std::endl;
 
-        std::cout << "file name ..."<< im1.empty() << im1_sem.empty() << std::endl;
+        std::cout << "file name ..."<< vstrImageFilenames[idx] << std::endl;
 
         std::cout << "before gtposes ..." << std::endl;
         cv::Mat P1_row = GTPoses.row(idx);

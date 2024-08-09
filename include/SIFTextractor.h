@@ -9,7 +9,7 @@ namespace ORB_SLAM2
     class SIFTextractor : public Extractor
     {
     public:
-
+        SIFTextractor() = default;
         SIFTextractor(int nfeatures, float scaleFactor, int nlevels,
                       int iniThFAST, int minThFAST);
 

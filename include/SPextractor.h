@@ -14,6 +14,7 @@ namespace ORB_SLAM2
     {
     public:
 
+        SPextractor() = default;
         SPextractor(int nfeatures, float scaleFactor, int nlevels,
                     float iniThFAST, float minThFAST);
 

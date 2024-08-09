@@ -9,7 +9,7 @@ namespace ORB_SLAM2
     class ORBextractor : public Extractor
     {
     public:
-
+        ORBextractor() = default;
         ORBextractor(int nfeatures, float scaleFactor, int nlevels,
                      int iniThFAST, int minThFAST);
 

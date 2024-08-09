@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
     {
-        "name": "(gdb) Launch",
-        "type": "cppdbg",
+        "name": "Launch",
+        "type": "lldb",
         "request": "launch",
         "program": "${workspaceFolder}/main",
-        "args": ["./sample_input_directory"],
+        "args": ["${workspaceFolder}/sample_input_directory"],
         "stopAtEntry": false,
         "cwd": "${fileDirname}",
         "environment": [],

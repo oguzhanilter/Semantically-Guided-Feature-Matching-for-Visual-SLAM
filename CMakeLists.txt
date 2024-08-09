@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(SemanticallyGuidedFeatureMatching)
 # c++ version
 
-SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_BUILD_TYPE Debug)
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
