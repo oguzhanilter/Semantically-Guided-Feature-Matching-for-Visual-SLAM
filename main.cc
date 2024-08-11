@@ -163,29 +163,16 @@ int main(int argc, char **argv)
             std::cout << "<" << std::flush;
         }
 
-        std::cout << "before indices ..." << std::endl;
-
         int idx = indices[i];
 
-std::cout << "before imread ..." << std::endl;
         cv::Mat im1 = cv::imread(vstrImageFilenames[idx], 0);
         cv::Mat im1_sem = cv::imread(vstrSemFilenames[idx], 0);
 
-
-        std::cout << "image: "<< im1.cols << " "<< im1.rows << std::endl;
-
-        std::cout << "file name ..."<< vstrImageFilenames[idx] << std::endl;
-
-        std::cout << "before gtposes ..." << std::endl;
         cv::Mat P1_row = GTPoses.row(idx);
-        std::cout << "before frame ..." << std::endl;
         ORB_SLAM2::Frame frame1(im1, im1_sem, extractor_ptr, K, DISTORTION_COEFFICIENTS);
 
         // ORB-SLAM2 initilization module
-        std::cout << "before init ..." << std::endl;
         ORB_SLAM2::Initializer *mpInitializer = new ORB_SLAM2::Initializer(frame1, 1.0, 200);
-
-        std::cout << "Before intervals ..." << std::endl;
 
         for (int j = 0; j < INTERVALS.size(); j++)
         {
@@ -209,8 +196,6 @@ std::cout << "before imread ..." << std::endl;
 
             int match_num_sem = matcher(frame1, frame2, matches_semantic, true);
 
-            std::cout << "before match num sem  ..." << std::endl;
-
             if (match_num_sem > 10)
             {
 
@@ -221,8 +206,6 @@ std::cout << "before imread ..." << std::endl;
 
                     success_semantic++;
                 }
-
-                // std::cout<<"After Initialize sem" <<std::endl;
             }
 
             int match_num_normal = matcher(frame1, frame2, matches_normal, false);

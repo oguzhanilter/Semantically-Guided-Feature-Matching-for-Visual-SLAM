@@ -54,8 +54,6 @@ namespace ORB_SLAM2
         mvLevelSigma2 = extractor->GetScaleSigmaSquares();
         mvInvLevelSigma2 = extractor->GetInverseScaleSigmaSquares();
 
-        std::cout<< "in frame" << std::endl;
-
         // ORB extraction
         int i = 0;
         do
@@ -65,16 +63,12 @@ namespace ORB_SLAM2
             i++;
         } while (N < 2 && i < 10);
 
-        std::cout<< "after exract feature" << std::endl;
-
         mvKeysClasses.reserve(N);
         mvKeysSemanticRegions.reserve(N);
 
         cv::Mat IDs_CV8U, circle;
         std::vector<uchar> circle_vec;
         sem.convertTo(IDs_CV8U, CV_8U);
-
-        std::cout<< "before loop" << std::endl;
 
         for (int i = 0; i < N; i++)
         {
