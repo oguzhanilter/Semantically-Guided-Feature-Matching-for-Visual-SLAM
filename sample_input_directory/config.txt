@@ -1,5 +1,5 @@
 # 0: ORB, 1: SP, 2: SIFT
-featureExtractorType = 0
+featureExtractorType = 1
 numberOfFeatures = 500
 fScaleFactor  = 1.2
 nLevels       = 1

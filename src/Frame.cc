@@ -86,7 +86,8 @@ namespace ORB_SLAM2
 
             std::vector<uchar> patch;
 
-            // TODO add explanations
+            // The histogram is created with the bin number equal to the total number of classes in semantic segmentation.
+            // Paper section 3, part A. 
             cv::Mat regionIDHist = cv::Mat::zeros(1, NUMBER_OF_SEMANTIC_CLASSES, CV_32F);
 
             circle = cv::Mat::zeros(kp.size, kp.size, CV_8U);

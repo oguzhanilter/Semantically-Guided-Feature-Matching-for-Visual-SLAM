@@ -42,9 +42,8 @@ double MAX_DISTANCE_BETWEEN_DESCRIPTORS;
 int FEATURE_EXTRACTOR_TYPE; // 0: ORB, 1: SP, 2: SIFT
 
 // Static Parameters
-// TODO add explanations
-const int NUMBER_OF_REFERENCES = 250;
-const std::vector<int> INTERVALS{5, 10, 15};
+const int NUMBER_OF_REFERENCES = 250; // 250 images will be selected as static
+const std::vector<int> INTERVALS{5, 10, 15}; // for every static image, the 5th, 10th and 15th subsequent images from the static image will be used to calculate position change.  
 cv::Mat DISTORTION_COEFFICIENTS = cv::Mat::zeros(4, 1, CV_32F);
 
 // Feature matching related params, taken from ORB-SLAM2
@@ -323,7 +322,8 @@ int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatc
 
             if (withSemantic)
             {
-                // TODO: Add explanation
+                // Photometric and Semantic error combination.
+                // Formula 6 in paper.
                 float dist_semantic = static_cast<float>(compare_semantics(vbPrevMatched_semanticRegions[i1], F2.mvKeysSemanticRegions[i2]));
                 dist = (1 - 0.1) * dist + 0.1 * MAX_DISTANCE_BETWEEN_DESCRIPTORS / float(vbPrevMatched_semanticRegions[i1].size[1]) * dist_semantic;
             }
