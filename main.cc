@@ -202,8 +202,6 @@ int main(int argc, char **argv)
 
             int match_num_sem = matcher(frame1, frame2, matches_semantic, true);
 
-            std::cout<< "match num sem " << match_num_sem << std::endl;
-
             if (match_num_sem > 10)
             {
 
@@ -217,8 +215,6 @@ int main(int argc, char **argv)
             }
 
             int match_num_normal = matcher(frame1, frame2, matches_normal, false);
-
-            std::cout<< "match num norm " << match_num_normal << std::endl;
 
             if (match_num_normal > 10)
             {
