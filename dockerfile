@@ -48,8 +48,8 @@ RUN mkdir -p opencv/build && cd opencv/build && \
 RUN cd opencv/build && make -j$(nproc) && make install
 
 # Download and install LibTorch (C++ API for PyTorch)
-RUN wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.3.1%2Bcpu.zip && \
-    unzip libtorch-cxx11-abi-shared-with-deps-2.3.1+cpu && \
+RUN wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.1%2Bcpu.zip && \
+    unzip libtorch-cxx11-abi-shared-with-deps-1.9.1+cpu && \
     mv libtorch /usr/local/libtorch
 
 # Set environment variables for LibTorch and OpenCV
