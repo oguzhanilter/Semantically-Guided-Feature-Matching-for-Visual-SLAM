@@ -16,6 +16,11 @@
 
 #define CV_PI 3.1415926535897932384626433832795
 
+// Feature Extractor Type
+ORB = 0 ;
+SUPERPOINT = 1;
+SIFT = 2;
+
 // Function declearations ---------------------- 
 int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatches12, bool withSemantic);
 unsigned int compare_semantics(const cv::Mat &m1, const cv::Mat &m2);
@@ -40,6 +45,7 @@ std::vector<std::filesystem::path> getImageFileNames(const std::filesystem::path
 // Parameters set inside main
 double MAX_DISTANCE_BETWEEN_DESCRIPTORS;
 int FEATURE_EXTRACTOR_TYPE; // 0: ORB, 1: SP, 2: SIFT
+const float FEATURE_DIST_TRESHOLD ; // feature matching param
 
 // Static Parameters
 const int NUMBER_OF_REFERENCES = 250; // 250 images will be selected as static
@@ -47,7 +53,6 @@ const std::vector<int> INTERVALS{5, 10, 15}; // for every static image, the 5th,
 cv::Mat DISTORTION_COEFFICIENTS = cv::Mat::zeros(4, 1, CV_32F);
 
 // Feature matching related params, taken from ORB-SLAM2
-const float TH_LOW = 0.30;
 const int HISTO_LENGTH = 30;
 const float mfNNratio = 0.7;
 
@@ -76,6 +81,7 @@ int main(int argc, char **argv)
     int nLevels = static_cast<float>( params["nLevels"] );
     float iniThFAST = static_cast<float>( params["iniThFAST"] );
     float minThFAST = static_cast<float>( params["minThFAST"] );
+    float FEATURE_DIST_TRESHOLD = static_cast<float>( params["featureDistThreshold"] ); // 0.30 for SuperPoint, 50 for ORB
 
     cv::Mat K = cv::Mat::eye(3,3,CV_32F);
     K.at<float>(0,0) = static_cast<float>( params["intirinsic_fx"] );
@@ -122,19 +128,19 @@ int main(int argc, char **argv)
     // Set feature extractor
     ORB_SLAM2::Extractor *extractor_ptr;
 
-    if (FEATURE_EXTRACTOR_TYPE == 0)
+    if (FEATURE_EXTRACTOR_TYPE == ORB)
     {
         
         extractor_ptr = new ORB_SLAM2::ORBextractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         MAX_DISTANCE_BETWEEN_DESCRIPTORS = 256;
     }
-    else if (FEATURE_EXTRACTOR_TYPE == 1)
+    else if (FEATURE_EXTRACTOR_TYPE == SUPERPOINT)
     {
         ORB_SLAM2::SPextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
         MAX_DISTANCE_BETWEEN_DESCRIPTORS = 1.4142135623730951;
     }
-    else if (FEATURE_EXTRACTOR_TYPE == 2)
+    else if (FEATURE_EXTRACTOR_TYPE == SIFT)
     {
         ORB_SLAM2::SIFTextractor extractor(nFeatures, fScaleFactor, nLevels, iniThFAST, minThFAST);
         extractor_ptr = &extractor;
@@ -196,6 +202,8 @@ int main(int argc, char **argv)
 
             int match_num_sem = matcher(frame1, frame2, matches_semantic, true);
 
+            std::cout<< "match num sem " << match_num_sem << std::endl;
+
             if (match_num_sem > 10)
             {
 
@@ -209,6 +217,8 @@ int main(int argc, char **argv)
             }
 
             int match_num_normal = matcher(frame1, frame2, matches_normal, false);
+
+            std::cout<< "match num norm " << match_num_normal << std::endl;
 
             if (match_num_normal > 10)
             {
@@ -326,7 +336,7 @@ int matcher(ORB_SLAM2::Frame &F1, ORB_SLAM2::Frame &F2, std::vector<int> &vnMatc
             }
         }
 
-        if (bestDist <= TH_LOW)
+        if (bestDist <= FEATURE_DIST_TRESHOLD)
         {
             if (bestDist < (float)bestDist2 * mfNNratio)
             {
@@ -428,12 +438,12 @@ void ComputeThreeMaxima(std::vector<int> *histo, const int L, int &ind1, int &in
 float DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
 
-    if (FEATURE_EXTRACTOR_TYPE == 0)
+    if (FEATURE_EXTRACTOR_TYPE == SUPERPOINT)
     {
         float dist = (float)cv::norm(a, b, cv::NORM_L2);
         return dist;
     }
-    else if (FEATURE_EXTRACTOR_TYPE == 1)
+    else if (FEATURE_EXTRACTOR_TYPE == ORB)
     {
         const int *pa = a.ptr<int32_t>();
         const int *pb = b.ptr<int32_t>();
