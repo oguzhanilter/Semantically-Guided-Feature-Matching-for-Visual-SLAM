@@ -45,8 +45,8 @@ timestamp x y z q_x q_y q_z q_w
 '''
 
 # Remark
-SuperPoint network fails on docker image with the following versions although it was running successfully in the server.
+SuperPoint network fails to run on docker image with the following versions although it was running successfully in the server.
 - 2.3.1 
 - 1.9.1
 
-I will continue to work on the repo to make SuperPoint features work.
+I will continue working on the repo to make SuperPoint features work.
