@@ -1,0 +1,15 @@
+# 0: ORB, 1: SP, 2: SIFT
+featureExtractorType = 0
+numberOfFeatures = 500
+fScaleFactor  = 1.2
+nLevels       = 1
+# 20 for ORB or FAST , 0.015 for SuperPoint
+iniThFAST     = 20  
+# 7 for ORB or FAST, 0.007 for SuperPoint
+minThFAST     = 7
+# 0.30 for SuperPoint, 50 for ORB
+featureDistThreshold = 30 
+intirinsic_fx = 718.856
+intirinsic_fy = 718.856
+intirinsic_cx = 607.1928
+intirinsic_cy = 185.2157

@@ -10,18 +10,20 @@ We introduce a new algorithm that utilizes semantic information to enhance featu
 This repo contains the example implementation of the feature matching between two frames enhanced by semantic features. This corresponds to the 'map initialization' module of ORB-SLAM2. The rest of the pipeline could not be published due to the ownership of VSO implementation.
 
 # Build using Docker Image
-Build the docker image and run the container
-Copy the repo inside the container
-inside directory 
+Build the docker image and run the container. Copy the repo inside the container. Please refer to [the official Docker website](https://docs.docker.com/) to see how. 
+
+Alternatively you can use [devcontainer in VSCode](https://code.visualstudio.com/docs/devcontainers/containers) with the provided [dockerfile](dockerfile).
+
+inside the directory 
+```console
 mkdir build & cd build 
 cmake ..
 make -j8
+```
 
-Alternatively you can use devcontainer in VSCode
+# Remark
+SuperPoint network fails on docker image with the following versions although it was running successfully in the server.
+- 2.3.1 
+- 1.9.1
 
-# ToDos
-- Build Instraction
-- Input Explanations
-- Refactoring
-    - Connection to the paper
-- Add paper 
+I will continue to work on the repo to make SuperPoint features work.
