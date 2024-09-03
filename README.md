@@ -21,6 +21,29 @@ cmake ..
 make -j8
 ```
 
+To run it 
+```console
+.main <input_data_directory_path>
+```
+
+# Input Data
+The input directory should contain 2 directory
+- images
+- semantic_images
+
+_images_ directory should contain the RGB images whereas _semantic_images_ directory should contain images of the semantic class IDs per pixels. 
+
+Please see the example images taken/created from KITTI dataset.
+
+and two txt file
+- config.txt
+- groundtruth.txt 
+
+Groundtruth should be in TUM format and corresponded the line number with the relative images: 
+'''
+timestamp x y z q_x q_y q_z q_w 
+'''
+
 # Remark
 SuperPoint network fails on docker image with the following versions although it was running successfully in the server.
 - 2.3.1 
